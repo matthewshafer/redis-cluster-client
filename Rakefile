@@ -11,7 +11,7 @@ Rake::TestTask.new(:test) do |t|
   t.libs << :test
   t.options = '-v'
   t.test_files = if ARGV.size > 1
-                   ARGV[1..]
+                   ARGV[1..-1]
                  else
                    Dir['test/**/test_*.rb'].grep_v(/test_against_cluster_(#{SLUGGISH_TEST_TYPES.join('|')})/)
                  end
@@ -31,7 +31,7 @@ Rake::TestTask.new(:bench) do |t|
   t.libs << :test
   t.options = '-v'
   t.warning = false
-  t.test_files = ARGV.size > 1 ? ARGV[1..] : Dir['test/**/bench_*.rb']
+  t.test_files = ARGV.size > 1 ? ARGV[1..-1] : Dir['test/**/bench_*.rb']
 end
 
 Rake::TestTask.new(:prof) do |t|
@@ -39,7 +39,7 @@ Rake::TestTask.new(:prof) do |t|
   t.libs << :test
   t.options = '-v'
   t.warning = false
-  t.test_files = ARGV.size > 1 ? ARGV[1..] : Dir['test/**/prof_*.rb']
+  t.test_files = ARGV.size > 1 ? ARGV[1..-1] : Dir['test/**/prof_*.rb']
 end
 
 desc 'Wait for cluster to be ready'

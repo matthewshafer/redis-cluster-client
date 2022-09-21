@@ -417,9 +417,9 @@ class ClusterController
       slots = if row[8].nil?
                 []
               else
-                row[8..].each_with_object([]) { |str, resp| resp << str.split('-').map { |s| Integer(s) } unless str.start_with?('[') }
-                        .map { |a| a.size == 1 ? a << a.first : a }.map(&:sort)
-                        .flat_map { |first, last| (first..last).to_a }.sort
+                row[8..-1].each_with_object([]) { |str, resp| resp << str.split('-').map { |s| Integer(s) } unless str.start_with?('[') }
+                          .map { |a| a.size == 1 ? a << a.first : a }.map(&:sort)
+                          .flat_map { |first, last| (first..last).to_a }.sort
               end
 
       {
@@ -443,7 +443,7 @@ class ClusterController
 
   def take_replicas(clients, shard_size:)
     replicas = clients.select { |cli| cli.call('ROLE').first == 'slave' }
-    replicas.size.zero? ? clients[shard_size..] : replicas
+    replicas.size.zero? ? clients[shard_size..-1] : replicas
   end
 
   def print_debug(msg)
