@@ -70,12 +70,12 @@ class RedisClient
     end
 
     def per_node_key
-      @node_configs.to_h do |config|
+      @node_configs.map do |config|
         node_key = ::RedisClient::Cluster::NodeKey.build_from_host_port(config[:host], config[:port])
         config = @client_config.merge(config)
         config = config.merge(host: @fixed_hostname) unless @fixed_hostname.empty?
         [node_key, config]
-      end
+      end.to_h
     end
 
     def use_replica?

@@ -408,7 +408,7 @@ class RedisClient
       def test_try_map
         primary_node_keys = @test_node_info.select { |info| info[:role] == 'master' }.map { |info| info[:node_key] }
         [
-          { block: ->(_, client) { client.call('PING') }, results: primary_node_keys.to_h { |k| [k, 'PONG'] } },
+          { block: ->(_, client) { client.call('PING') }, results: primary_node_keys.map { |k| [k, 'PONG'] }.to_h },
           { block: ->(_, client) { client.call('UNKNOWN') }, errors: ::RedisClient::CommandError }
         ].each_with_index do |c, idx|
           msg = "Case: #{idx}"

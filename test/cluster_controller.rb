@@ -393,7 +393,7 @@ class ClusterController
   end
 
   def hashify_cluster_info(client)
-    client.call('CLUSTER', 'INFO').split("\r\n").to_h { |v| v.split(':') }
+    client.call('CLUSTER', 'INFO').split("\r\n").map { |v| v.split(':') }.to_h
   end
 
   def fetch_cluster_nodes(client)

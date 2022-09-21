@@ -219,7 +219,7 @@ class RedisClient
       end
 
       def build_replication_mappings(node_info) # rubocop:disable Metrics/AbcSize
-        dict = node_info.to_h { |info| [info[:id], info] }
+        dict = node_info.map { |info| [info[:id], info] }.to_h
         node_info.each_with_object(Hash.new { |h, k| h[k] = [] }) do |info, acc|
           primary_info = dict[info[:primary_id]]
           acc[primary_info[:node_key]] << info[:node_key] unless primary_info.nil?
