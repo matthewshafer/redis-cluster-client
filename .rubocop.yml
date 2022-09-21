@@ -6,7 +6,7 @@ require:
 
 # https://rubocop.readthedocs.io/en/latest/
 AllCops:
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 2.5
   DisplayCopNames: true
   NewCops: enable
 
