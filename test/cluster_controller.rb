@@ -427,7 +427,7 @@ class ClusterController
   end
 
   def associate_with_clients_and_nodes(clients)
-    clients.filter_map do |client|
+    clients.each_with_object([]) do |client, resp|
       rows = fetch_cluster_nodes(client)
       rows = parse_cluster_nodes(rows)
       row = rows.find(&:myself?)
@@ -435,7 +435,7 @@ class ClusterController
 
       row.client = client
       row.client_node_key = "#{client.config.host}:#{client.config.port}"
-      row
+      resp << row
     rescue ::RedisClient::ConnectionError
       next
     end
@@ -447,7 +447,7 @@ class ClusterController
       slots = if row[8].nil?
                 []
               else
-                row[8..].filter_map { |str| str.start_with?('[') ? nil : str.split('-').map { |s| Integer(s) } }
+                row[8..].each_with_object([]) { |str, resp| resp << str.split('-').map { |s| Integer(s) } unless str.start_with?('[') }
                         .map { |a| a.size == 1 ? a << a.first : a }.map(&:sort)
                         .flat_map { |first, last| (first..last).to_a }.sort
               end
