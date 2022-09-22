@@ -9,7 +9,10 @@ class RedisClient
         include ::RedisClient::Cluster::Node::ReplicaMixin
 
         def replica_clients
-          keys = @replications.values.filter_map(&:sample)
+          keys = @replications.values.each_with_object([]) do |value, resp|
+            sample = value.sample
+            resp << sample if sample
+          end
           @clients.select { |k, _| keys.include?(k) }
         end
 

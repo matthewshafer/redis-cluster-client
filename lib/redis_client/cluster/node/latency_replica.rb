@@ -68,7 +68,10 @@ class RedisClient
         end
 
         def select_replica_clients(replications, clients)
-          keys = replications.values.filter_map(&:first)
+          keys = replications.values.each_with_object([]) do |value, resp|
+            first = value.first
+            resp << first if first
+          end
           clients.select { |k, _| keys.include?(k) }
         end
 
