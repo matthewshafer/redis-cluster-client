@@ -54,7 +54,7 @@ TEST_NUMBER_OF_NODES = TEST_SHARD_SIZE + TEST_NUMBER_OF_REPLICAS
 
 TEST_REDIS_PORTS = TEST_REDIS_PORT.upto(TEST_REDIS_PORT + TEST_NUMBER_OF_NODES - 1).to_a.freeze
 TEST_NODE_URIS = TEST_REDIS_PORTS.map { |v| "#{TEST_REDIS_SCHEME}://#{TEST_REDIS_HOST}:#{v}" }.freeze
-TEST_NODE_OPTIONS = TEST_REDIS_PORTS.to_h { |v| ["#{TEST_REDIS_HOST}:#{v}", { host: TEST_REDIS_HOST, port: v }] }.freeze
+TEST_NODE_OPTIONS = TEST_REDIS_PORTS.map { |v| ["#{TEST_REDIS_HOST}:#{v}", { host: TEST_REDIS_HOST, port: v }] }.to_h.freeze
 
 TEST_GENERIC_OPTIONS = (TEST_REDIS_SSL ? _base_opts.merge(_ssl_opts) : _base_opts).freeze
 

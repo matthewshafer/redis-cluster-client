@@ -393,7 +393,7 @@ class ClusterController
   end
 
   def hashify_cluster_info(client)
-    client.call('CLUSTER', 'INFO').split("\r\n").to_h { |v| v.split(':') }
+    client.call('CLUSTER', 'INFO').split("\r\n").map { |v| v.split(':') }.to_h
   end
 
   def fetch_cluster_nodes(client)
@@ -401,11 +401,11 @@ class ClusterController
   end
 
   def associate_with_clients_and_nodes(clients)
-    clients.filter_map do |client|
+    clients.each_with_object([]) do |client, resp|
       rows = fetch_cluster_nodes(client)
       rows = parse_cluster_nodes(rows)
       row = rows.find { |r| r[:flags].include?('myself') }
-      row.merge(client: client, client_node_key: "#{client.config.host}:#{client.config.port}")
+      resp << row.merge(client: client, client_node_key: "#{client.config.host}:#{client.config.port}")
     rescue ::RedisClient::ConnectionError
       next
     end
@@ -417,9 +417,9 @@ class ClusterController
       slots = if row[8].nil?
                 []
               else
-                row[8..].filter_map { |str| str.start_with?('[') ? nil : str.split('-').map { |s| Integer(s) } }
-                        .map { |a| a.size == 1 ? a << a.first : a }.map(&:sort)
-                        .flat_map { |first, last| (first..last).to_a }.sort
+                row[8..-1].each_with_object([]) { |str, resp| resp << str.split('-').map { |s| Integer(s) } unless str.start_with?('[') }
+                          .map { |a| a.size == 1 ? a << a.first : a }.map(&:sort)
+                          .flat_map { |first, last| (first..last).to_a }.sort
               end
 
       {
@@ -443,7 +443,7 @@ class ClusterController
 
   def take_replicas(clients, shard_size:)
     replicas = clients.select { |cli| cli.call('ROLE').first == 'slave' }
-    replicas.size.zero? ? clients[shard_size..] : replicas
+    replicas.size.zero? ? clients[shard_size..-1] : replicas
   end
 
   def print_debug(msg)

@@ -70,12 +70,12 @@ class RedisClient
     end
 
     def per_node_key
-      @node_configs.to_h do |config|
+      @node_configs.map do |config|
         node_key = ::RedisClient::Cluster::NodeKey.build_from_host_port(config[:host], config[:port])
         config = @client_config.merge(config)
         config = config.merge(host: @fixed_hostname) unless @fixed_hostname.empty?
         [node_key, config]
-      end
+      end.to_h
     end
 
     def use_replica?
@@ -97,7 +97,10 @@ class RedisClient
     private
 
     def build_node_configs(addrs)
-      configs = Array[addrs].flatten.filter_map { |addr| parse_node_addr(addr) }
+      configs = Array[addrs].flatten.each_with_object([]) do |addr, resp|
+        parsed = parse_node_addr(addr)
+        resp << parsed if parsed
+      end
       raise InvalidClientConfigError, '`nodes` option is empty' if configs.size.zero?
 
       configs

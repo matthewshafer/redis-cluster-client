@@ -94,8 +94,8 @@ class RedisClient
               arr[8] = []
               next
             end
-            arr[8] = arr[8..].filter_map { |str| str.start_with?('[') ? nil : str.split('-').map { |s| Integer(s) } }
-                             .map { |a| a.size == 1 ? a << a.first : a }.map(&:sort)
+            arr[8] = arr[8..-1].each_with_object([]) { |str, resp| resp << str.split('-').map { |s| Integer(s) } unless str.start_with?('[') }
+                               .map { |a| a.size == 1 ? a << a.first : a }.map(&:sort)
           end
 
           rows.map do |arr|
@@ -219,7 +219,7 @@ class RedisClient
       end
 
       def build_replication_mappings(node_info) # rubocop:disable Metrics/AbcSize
-        dict = node_info.to_h { |info| [info[:id], info] }
+        dict = node_info.map { |info| [info[:id], info] }.to_h
         node_info.each_with_object(Hash.new { |h, k| h[k] = [] }) do |info, acc|
           primary_info = dict[info[:primary_id]]
           acc[primary_info[:node_key]] << info[:node_key] unless primary_info.nil?

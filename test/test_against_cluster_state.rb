@@ -69,7 +69,7 @@ class TestAgainstClusterState < TestingWrapper
     end
 
     def fetch_cluster_info(key)
-      @client.call('CLUSTER', 'INFO').split("\r\n").to_h { |v| v.split(':') }.fetch(key)
+      @client.call('CLUSTER', 'INFO').split("\r\n").map { |v| v.split(':') }.to_h.fetch(key)
     end
 
     def do_resharding_test(number_of_keys: 1000)
