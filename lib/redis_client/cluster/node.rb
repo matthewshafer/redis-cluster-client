@@ -134,7 +134,7 @@ class RedisClient
               arr[8] = []
               next
             end
-            arr[8] = arr[8..].filter_map { |str| str.start_with?('[') ? nil : str.split('-').map { |s| Integer(s) } }
+            arr[8] = arr[8..].each_with_object([]) { |str, resp| resp << str.split('-').map { |s| Integer(s) } unless str.start_with?('[') }
                              .map { |a| a.size == 1 ? a << a.first : a }.map(&:sort)
           end
 
